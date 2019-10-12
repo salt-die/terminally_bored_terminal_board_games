@@ -46,8 +46,8 @@ class Reversi:
         labels = f"  {'   '.join(self.labelx)}"
         header = f"  ╭──{'─┬──' * (self.width - 1)}─╮"
         gutter = f"  ├──{'─┼──' * (self.width - 1)}─┤\n".join(
-                    f"{y_label} │ {' │ '.join(' ●○'[value] for value in row)} │\n"
-                    for y_label, row in zip(self.labely, self.board)).split("\n")[:-1]
+          f"{y_label} │ {' │ '.join(' ●○'[value] for value in row)} │\n"
+          for y_label, row in zip(self.labely, self.board)).split("\n")[:-1]
         footer = f"  ╰──{'─┴──' * (self.width - 1)}─╯"
 
         print("\n" * ((TERMY - self.height * 2 - 5) // 2))  # Vertical Buffer
