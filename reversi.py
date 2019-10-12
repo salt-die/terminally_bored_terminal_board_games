@@ -1,5 +1,4 @@
 """
-Just a tiny text-based ConnectFour game.
 """
 
 import os
