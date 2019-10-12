@@ -63,8 +63,8 @@ class Reversi:
         if self.current_move == 'q':
             return True
 
-        if len(self.current_move) != 2 or any((self.current_move[0] not in self.labelx,
-                                               self.current_move[1] not in self.labely)):
+        if len(self.current_move) != 2 or not all((self.current_move[0] in self.labelx,
+                                                   self.current_move[1] in self.labely)):
             print_line("Please enter valid coordinate!")
             return False
 
