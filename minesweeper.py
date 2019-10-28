@@ -39,7 +39,7 @@ class MineSweeper:
         view = np.where(self.flags, -3, np.where(self.revealed, self.count, -2))
 
         print(f'  {" ".join(self.labels[:self.WIDTH])}',
-              *(f'{label} {" ".join("▢12345678◄▣X"[value] for value in row)}'
+              *(f'{label} {" ".join("▢12345678⚑▣X"[value] for value in row)}'
                 for label, row in zip(self.labels, view)), sep="\n")
 
     def reveal(self, location):
