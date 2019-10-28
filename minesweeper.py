@@ -7,7 +7,7 @@ KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
 MINES = 20
 
 def ask(self):
-        x, y = input("Enter coordinate: ")
+        y, x = input("Enter coordinate: ")
         return self.labels.find(y), self.labels.find(x)
 
 class MineSweeper:
@@ -55,7 +55,7 @@ class MineSweeper:
                     self.reveal(neighbor)
 
     def is_inbounds(self, location):
-        x, y = location
+        y, x = location
         return 0 <= x < self.WIDTH and 0 <= y < self.HEIGHT
 
     def start(self):
