@@ -6,10 +6,6 @@ ROWS, COLUMNS = 20, 20
 KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
 MINES = 40
 
-def ask(self):
-        y, x = input("Enter coordinate: ")
-        return self.labels.find(y), self.labels.find(x)
-
 class MineSweeper:
     GAMEOVER = False
     labels = "abcdefghijklmnoprstuvwxz"
@@ -49,9 +45,9 @@ class MineSweeper:
         if not self.count[location]:
             for adjacent in product((-1, 0, 1), repeat=2):
                 neighbor = tuple(np.array(location) + adjacent)
-                if not (not self.is_inbounds(neighbor) or
-                        self.revealed[neighbor] or
-                        self.minefield[neighbor]):
+                if (self.is_inbounds(neighbor) and
+                    not self.revealed[neighbor] and
+                    not self.minefield[neighbor]):
                     self.reveal(neighbor)
 
     def is_inbounds(self, location):
