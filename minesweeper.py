@@ -10,7 +10,7 @@ from scipy.ndimage import convolve
 
 ROWS, COLUMNS = 20, 40
 KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-MINES = 200
+MINES = 180
 
 class MineSweeper:
     RUNNING = True
@@ -40,6 +40,13 @@ class MineSweeper:
         curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_GREEN)
         self.screen.attron(curses.color_pair(1))
 
+    def end_curses(self):
+        curses.nocbreak()
+        self.screen.keypad(False)
+        curses.echo()
+        curses.flushinp()
+        curses.endwin()
+
     def place_mines(self):
         for _ in range(self.mines):
             while True:
@@ -54,6 +61,7 @@ class MineSweeper:
             self.RUNNING = False
         elif key == ord("f") and not self.revealed[tuple(self.cursor)]:
             self.flags[tuple(self.cursor)] = not self.flags[tuple(self.cursor)]
+            self.mines += (-1)**self.flags[tuple(self.cursor)]
         elif key == ord(" ") and not self.flags[tuple(self.cursor)]:
             self.reveal(tuple(self.cursor))
         elif key == curses.KEY_LEFT:
@@ -87,12 +95,14 @@ class MineSweeper:
 
     def reveal(self, location):
         self.revealed[location] = True
+
         if self.minefield[location]:
             self.RUNNING = False
             self.revealed = np.ones((self.HEIGHT, self.WIDTH), dtype=bool)
             self.show()
             self.print_centered("You lose!")
             return
+
         if not self.count[location]:
             for adjacent in product((-1, 0, 1), repeat=2):
                 neighbor = tuple(np.array(location) + adjacent)
@@ -103,29 +113,28 @@ class MineSweeper:
         y, x = location
         return 0 <= y < self.HEIGHT and 0 <= x < self.WIDTH
 
-    def print_centered(self, text):
+    def print_centered(self, text, nogetch=False):
         h, w = self.screen.getmaxyx()
         self.screen.addstr(h//2 + self.HEIGHT//2 + 1, w//2 - len(text)//2, text)
         self.screen.refresh()
-        self.screen.getch()
+        if not nogetch:
+            self.screen.getch()
 
     def start(self):
         while self.RUNNING:
             self.show()
+            self.print_centered(f'Mines: {self.mines}', nogetch=True)
             self.ask()
 
             if (~self.revealed == self.minefield).all():
+                self.show()
                 self.print_centered("You win!")
                 break
 
-        curses.nocbreak()
-        self.screen.keypad(False)
-        curses.echo()
-        curses.flushinp()
-        curses.endwin()
+        self.end_curses()
 
 if __name__ == "__main__":
     keep_playing = "y"
-    while keep_playing == "y":
+    while keep_playing[:1] == "y":
         MineSweeper(MINES, ROWS, COLUMNS).start()
         keep_playing = input("Play again?: [y]").lower()
