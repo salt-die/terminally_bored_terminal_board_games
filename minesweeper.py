@@ -2,9 +2,9 @@ import numpy as np
 from scipy.ndimage import convolve
 from itertools import product
 
-ROWS, COLUMNS = 10, 10
+ROWS, COLUMNS = 20, 20
 KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-MINES = 20
+MINES = 40
 
 def ask(self):
         y, x = input("Enter coordinate: ")
