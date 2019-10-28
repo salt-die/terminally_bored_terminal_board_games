@@ -9,10 +9,10 @@ import sys
 import numpy as np
 from scipy.ndimage import convolve
 
-ROWS, COLUMNS = 30, 40
+ROWS, COLUMNS = 20, 40
 KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-MINES = 200
-RECURSION_LIMIT = 2000  # Large boards with few mines can quickly hit over 1000 recurses
+MINES = 180
+RECURSION_LIMIT = max(ROWS * COLUMNS, 1000)
 
 class RecursionLimit:
     def __init__(self, limit):
