@@ -61,12 +61,19 @@ class MineSweeper:
         self.show()
         while not self.GAMEOVER:
             flag, location = self.ask()
+
             if flag:
                 self.flags[location] = not self.flags[location]
             elif not self.flags[location]:
                 self.reveal(location)
+
             self.show()
-        print("Gameover")
+
+            if (~self.revealed == self.minefield).all():
+                print("You win!")
+                break
+        else:
+            print("Game Over!")
 
 if __name__ == "__main__":
     MineSweeper(MINES, ROWS, COLUMNS).start()
