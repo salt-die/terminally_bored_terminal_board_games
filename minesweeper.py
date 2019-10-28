@@ -5,12 +5,25 @@ Arrow keys move the cursor, 'space' to reveal, 'f' to set a flag, and 'esc' to e
 
 import curses
 from itertools import product
+import sys
 import numpy as np
 from scipy.ndimage import convolve
 
-ROWS, COLUMNS = 20, 40
+ROWS, COLUMNS = 30, 40
 KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-MINES = 180
+MINES = 200
+RECURSION_LIMIT = 2000  # Large boards with few mines can quickly hit over 1000 recurses
+
+class RecursionLimit:
+    def __init__(self, limit):
+        self.limit = limit
+        self.old_limit = sys.getrecursionlimit()
+
+    def __enter__(self):
+        sys.setrecursionlimit(self.limit)
+
+    def __exit__(self, type, value, tb):
+        sys.setrecursionlimit(self.old_limit)
 
 class MineSweeper:
     RUNNING = True
@@ -63,7 +76,8 @@ class MineSweeper:
             self.flags[tuple(self.cursor)] = not self.flags[tuple(self.cursor)]
             self.mines += (-1)**self.flags[tuple(self.cursor)]
         elif key == ord(" ") and not self.flags[tuple(self.cursor)]:
-            self.reveal(tuple(self.cursor))
+            with RecursionLimit(RECURSION_LIMIT):
+                self.reveal(tuple(self.cursor))
         elif key == curses.KEY_LEFT:
             self.cursor += (0, -1)
         elif key == curses.KEY_RIGHT:
