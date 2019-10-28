@@ -71,7 +71,7 @@ class MineSweeper:
         h, w = self.screen.getmaxyx()
         view = np.where(self.flags, -3, np.where(self.revealed, self.count, -2))
 
-        lines = (f'{" ".join("▢12345678⚑▣X"[value] for value in row)}' for row in view)
+        lines = (f'{" ".join("▢12345678⚑▣🗙"[value] for value in row)}' for row in view)
 
         self.screen.clear()
 
@@ -89,6 +89,7 @@ class MineSweeper:
         self.revealed[location] = True
         if self.minefield[location]:
             self.RUNNING = False
+            self.revealed = np.ones((self.HEIGHT, self.WIDTH), dtype=bool)
             self.show()
             self.print_centered("You lose!")
             return
