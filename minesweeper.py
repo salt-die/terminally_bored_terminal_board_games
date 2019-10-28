@@ -48,9 +48,7 @@ class MineSweeper:
         if not self.count[location]:
             for adjacent in product((-1, 0, 1), repeat=2):
                 neighbor = tuple(np.array(location) + adjacent)
-                if (self.is_inbounds(neighbor) and
-                    not self.revealed[neighbor] and
-                    not self.minefield[neighbor]):
+                if self.is_inbounds(neighbor) and not self.revealed[neighbor]:
                     self.reveal(neighbor)
 
     def is_inbounds(self, location):
