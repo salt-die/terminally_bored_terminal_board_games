@@ -63,7 +63,6 @@ class MineSweeper:
         self.show()
         while not self.GAMEOVER:
             flag, location = self.ask()
-            print(flag, location)
             if flag:
                 self.flags[location] = not self.flags[location]
             else:
