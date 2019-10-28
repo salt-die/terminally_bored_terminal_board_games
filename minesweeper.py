@@ -63,7 +63,7 @@ class MineSweeper:
             flag, location = self.ask()
             if flag:
                 self.flags[location] = not self.flags[location]
-            elif not self.flag[location]:
+            elif not self.flags[location]:
                 self.reveal(location)
             self.show()
         print("Gameover")
