@@ -1,4 +1,5 @@
 """
+Gutted and repurposed connectfour --- unfinished, and non-functional
 """
 
 import os
