@@ -94,7 +94,7 @@ class MineSweeper:
         h, w = self.screen.getmaxyx()
         view = np.where(self.flags, -3, np.where(self.revealed, self.count, -2))
 
-        lines = (f'{" ".join("□12345678⚑■🗙"[value] for value in row)}' for row in view)
+        lines = (f'{" ".join(" 12345678⚑■🗙"[value] for value in row)}' for row in view)
 
         self.screen.clear()
 
