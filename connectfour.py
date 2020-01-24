@@ -63,7 +63,9 @@ class ConnectFour:
         if self.current_move == 'q':
             return True
 
-        if len(self.current_move) > 1 or self.current_move not in self.labels:
+        if (   not self.current_move
+            or len(self.current_move) > 1
+            or self.current_move not in self.labels):
             print_line("Please input a valid column!")
             return False
 
