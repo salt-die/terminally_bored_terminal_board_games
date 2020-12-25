@@ -44,7 +44,7 @@ class ConnectFour:
         """
         Print our current board state.
         """
-        os.system("clear || cls")  # Clears the terminal
+        os.system('cls' if os.name == 'nt' else 'clear')
 
         header = f"╷{'╷'.join(self.labels)}╷"
         gutter = (f"│{'│'.join(' ●○'[value] for value in row)}│" for row in self.board)
