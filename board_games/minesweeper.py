@@ -14,6 +14,7 @@ KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
 MINES = 180
 RECURSION_LIMIT = max(ROWS * COLUMNS, 1000)
 
+
 class RecursionLimit:
     def __init__(self, limit):
         self.limit = limit
@@ -24,6 +25,7 @@ class RecursionLimit:
 
     def __exit__(self, type, value, tb):
         sys.setrecursionlimit(self.old_limit)
+
 
 class MineSweeper:
     def __init__(self, mines, *dim):

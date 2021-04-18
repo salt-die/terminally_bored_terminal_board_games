@@ -1,6 +1,5 @@
-# ignore until playable
-lightsout.py
-tetris.py
+# Ignore unfinished games
+_unfinished/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
