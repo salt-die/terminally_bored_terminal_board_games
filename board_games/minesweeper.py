@@ -10,9 +10,10 @@ import numpy as np
 from scipy.ndimage import convolve
 
 ROWS, COLUMNS = 20, 40
-KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-MINES = 180
 RECURSION_LIMIT = max(ROWS * COLUMNS, 1000)
+KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+MINES = 150
+ESCAPE = 27
 
 
 class RecursionLimit:
@@ -28,19 +29,20 @@ class RecursionLimit:
 
 
 class MineSweeper:
-    def __init__(self, mines, *dim):
+    def __init__(self, mines, height, width):
         self.mines = mines
-        self.HEIGHT, self.WIDTH = self.dim = dim
+        self.height, self.width = self.dim = height, width
         self.init_scr()
 
     def reset(self):
         self.minefield = np.zeros(self.dim, dtype=int)
         self.place_mines()
-        self.count = np.where(self.minefield==1, -1,
-                              convolve(self.minefield, KERNEL, mode='constant'))
+
+        self.count = np.where(self.minefield==1, -1, convolve(self.minefield, KERNEL, mode='constant'))
         self.revealed = np.zeros(self.dim, dtype=bool)
         self.flags = np.zeros(self.dim, dtype=bool)
-        self.cursor = np.array([self.HEIGHT//2, self.WIDTH//2])
+
+        self.cursor = np.array([self.height // 2, self.width // 2])
         self.mines_left = self.mines
         self.RUNNING = True
 
@@ -66,51 +68,60 @@ class MineSweeper:
     def place_mines(self):
         for _ in range(self.mines):
             while True:
-                location = np.random.randint(self.HEIGHT), np.random.randint(self.WIDTH)
+                location = np.random.randint(self.height), np.random.randint(self.width)
                 if not self.minefield[location]:
                     self.minefield[location] = 1
                     break
 
-    def ask(self):
+    def get_user_input(self):
         key = self.screen.getch()
-        if key == 27:  # Escape
+        position = tuple(self.cursor)
+
+        if key == ESCAPE:
             self.RUNNING = False
-        elif key == ord("f") and not self.revealed[tuple(self.cursor)]:
-            self.flags[tuple(self.cursor)] = not self.flags[tuple(self.cursor)]
-            self.mines_left += (-1)**self.flags[tuple(self.cursor)]
-        elif key == ord(" ") and not self.flags[tuple(self.cursor)]:
+
+        elif key == ord("f") and not self.revealed[position]:
+            self.flags[position] ^= 1
+            self.mines_left += -1 if self.flags[position] else 1
+
+        elif key == ord(" ") and not self.flags[position]:
             with RecursionLimit(RECURSION_LIMIT):
                 self.reveal(tuple(self.cursor))
+
         elif key == curses.KEY_LEFT:
-            self.cursor += (0, -1)
+            self.cursor +=  0, -1
         elif key == curses.KEY_RIGHT:
-            self.cursor += (0, 1)
+            self.cursor +=  0,  1
         elif key == curses.KEY_UP:
-            self.cursor += (-1, 0)
+            self.cursor += -1,  0
         elif key == curses.KEY_DOWN:
-            self.cursor += (1, 0)
-        self.cursor %= (self.HEIGHT, self.WIDTH)
+            self.cursor +=  1, 0
+        self.cursor %= self.dim
 
-
-    def show(self, center_text, getch=False):
+    def show(self, center_text=""):
+        """Display the minefield and print `center_text` directly below it.
+        """
         h, w = self.screen.getmaxyx()
-        view = np.where(self.flags, -3, np.where(self.revealed, self.count, -2))
+        centered_y = h // 2 - self.height // 2
+        centered_x = w // 2 - self.width - 1
 
-        lines = (f'{" ".join(" 12345678⚑■🗙"[value] for value in row)}' for row in view)
+        view = np.where(self.flags, -3, np.where(self.revealed, self.count, -2))
+        lines = (" ".join(" 12345678⚑■X"[value] for value in row) for row in view)
 
         self.screen.clear()
 
+        # Minefield
         for i, line in enumerate(lines):
-            self.screen.addstr(h//2 - (self.HEIGHT)//2 + i, w//2 - self.WIDTH - 1, line)
+            self.screen.addstr(centered_y + i, centered_x, line)
 
+        # Highlight cursor
         y, x = self.cursor
-        self.screen.chgat(h//2 - (self.HEIGHT + 1)//2 + y,
-                          w//2 - (self.WIDTH + 1) + 2 * x,
-                          1, curses.color_pair(2))
+        self.screen.chgat(centered_y + y, centered_x + 2 * x, 1, curses.color_pair(2))
 
-        self.print_centered(center_text)
-        if getch:
-            self.screen.getch()
+        # Add `center_text`
+        below_minefield = h // 2 + self.height // 2
+        centered_text_x = w // 2 - len(center_text) // 2
+        self.screen.addstr(below_minefield, centered_text_x, center_text)
 
         self.screen.refresh()
 
@@ -119,11 +130,8 @@ class MineSweeper:
 
         if self.minefield[location]:
             self.RUNNING = False
-            self.revealed = np.ones((self.HEIGHT, self.WIDTH), dtype=bool)
-            self.show("You lose!", getch=True)
-            return
 
-        if not self.count[location]:
+        elif self.count[location] == 0:
             for adjacent in product((-1, 0, 1), repeat=2):
                 neighbor = tuple(np.array(location) + adjacent)
                 if self.is_inbounds(neighbor) and not self.revealed[neighbor]:
@@ -131,26 +139,27 @@ class MineSweeper:
 
     def is_inbounds(self, location):
         y, x = location
-        return 0 <= y < self.HEIGHT and 0 <= x < self.WIDTH
+        return 0 <= y < self.height and 0 <= x < self.width
 
-    def print_centered(self, text):
-        h, w = self.screen.getmaxyx()
-        self.screen.addstr(h//2 + self.HEIGHT//2 + 1, w//2 - len(text)//2, text)
-        self.screen.refresh()
+    def new_game(self):
+        self.reset()
 
-    def game(self):
         while self.RUNNING:
             self.show(f"Mines: {self.mines_left}")
-            self.ask()
+            self.get_user_input()
 
             if (~self.revealed == self.minefield).all():
-                self.show("You win!", getch=True)
-                return
+                self.show("You win!")
+                break
+        else:
+            self.revealed = np.ones(self.dim, dtype=bool)
+            self.show("You lose!")
+
+        self.screen.getch()
 
     def start(self):
         while True:
-            self.reset()
-            self.game()
+            self.new_game()
             self.show("Play again? [y]")
             if self.screen.getch() not in (ord("y"), ord("Y")):
                 break
@@ -158,4 +167,4 @@ class MineSweeper:
         self.end_curses()
 
 if __name__ == "__main__":
-    MineSweeper(MINES, ROWS, COLUMNS).start()
+    MineSweeper(MINES, ROWS, COLUMNS).run()
