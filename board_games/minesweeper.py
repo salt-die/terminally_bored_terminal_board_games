@@ -37,7 +37,7 @@ class MineSweeper:
         self.minefield = np.zeros(self.dim, dtype=int)
         self.place_mines()
 
-        self.count = np.where(self.minefield==1, -1, convolve(self.minefield, KERNEL, mode='constant'))
+        self.count = np.where(self.minefield == 1, -1, convolve(self.minefield, KERNEL, mode='constant'))
         self.revealed = np.zeros(self.dim, dtype=bool)
         self.flags = np.zeros(self.dim, dtype=bool)
 
