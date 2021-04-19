@@ -43,7 +43,7 @@ class MineSweeper:
 
         self.cursor = np.array([self.height // 2, self.width // 2])
         self.mines_left = self.mines
-        self.RUNNING = True
+        self.is_running = True
 
     def init_scr(self):
         self.screen = curses.initscr()
@@ -77,7 +77,7 @@ class MineSweeper:
         position = tuple(self.cursor)
 
         if key == ESCAPE:
-            self.RUNNING = False
+            self.is_running = False
 
         elif key == ord("f") and not self.revealed[position]:
             self.flags[position] ^= 1
@@ -133,7 +133,7 @@ class MineSweeper:
         self.revealed[location] = True
 
         if self.minefield[location]:
-            self.RUNNING = False
+            self.is_running = False
 
         elif self.count[location] == 0:
             for adjacent in product((-1, 0, 1), repeat=2):
@@ -148,7 +148,7 @@ class MineSweeper:
     def new_game(self):
         self.reset()
 
-        while self.RUNNING:
+        while self.is_running:
             self.show(f"Mines: {self.mines_left}")
             self.get_user_input()
 
