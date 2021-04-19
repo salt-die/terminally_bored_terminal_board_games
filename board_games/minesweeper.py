@@ -10,9 +10,8 @@ import numpy as np
 from scipy.ndimage import convolve
 
 ROWS, COLUMNS = 20, 40
-RECURSION_LIMIT = max(ROWS * COLUMNS, 1000)
-KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
 MINES = 150
+KERNEL = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
 ESCAPE = 27
 
 
@@ -29,7 +28,7 @@ class RecursionLimit:
 
 
 class MineSweeper:
-    def __init__(self, mines, height, width):
+    def __init__(self, mines=MINES, height=ROWS, width=COLUMNS):
         self.mines = mines
         self.height, self.width = self.dim = height, width
         self.init_scr()
@@ -85,8 +84,8 @@ class MineSweeper:
             self.mines_left += -1 if self.flags[position] else 1
 
         elif key == ord(" ") and not self.flags[position]:
-            with RecursionLimit(RECURSION_LIMIT):
-                self.reveal(tuple(self.cursor))
+            with RecursionLimit(self.height * self.width):  # `reveal` could be called at most once for each cell
+                self.reveal(position)
 
         elif key == curses.KEY_LEFT:
             self.cursor +=  0, -1
@@ -95,11 +94,12 @@ class MineSweeper:
         elif key == curses.KEY_UP:
             self.cursor += -1,  0
         elif key == curses.KEY_DOWN:
-            self.cursor +=  1, 0
+            self.cursor +=  1,  0
+
         self.cursor %= self.dim
 
-    def show(self, center_text=""):
-        """Display the minefield and print `center_text` directly below it.
+    def show(self, text=""):
+        """Display the minefield and print `text` directly below it.
         """
         h, w = self.screen.getmaxyx()
         centered_y = h // 2 - self.height // 2
@@ -118,14 +118,18 @@ class MineSweeper:
         y, x = self.cursor
         self.screen.chgat(centered_y + y, centered_x + 2 * x, 1, curses.color_pair(2))
 
-        # Add `center_text`
+        # Add `text`
         below_minefield = h // 2 + self.height // 2
-        centered_text_x = w // 2 - len(center_text) // 2
-        self.screen.addstr(below_minefield, centered_text_x, center_text)
+        centered_text_x = w // 2 - len(text) // 2
+        self.screen.addstr(below_minefield, centered_text_x, text)
 
         self.screen.refresh()
 
     def reveal(self, location):
+        """
+        Reveal `location` on the minefield.  Ends the game if there is a mine at `location`.
+        Recurses over `location`'s neighbors if `location` has no neighboring mines.
+        """
         self.revealed[location] = True
 
         if self.minefield[location]:
@@ -157,7 +161,7 @@ class MineSweeper:
 
         self.screen.getch()
 
-    def start(self):
+    def run(self):
         while True:
             self.new_game()
             self.show("Play again? [y]")
@@ -167,4 +171,4 @@ class MineSweeper:
         self.end_curses()
 
 if __name__ == "__main__":
-    MineSweeper(MINES, ROWS, COLUMNS).run()
+    MineSweeper().run()
