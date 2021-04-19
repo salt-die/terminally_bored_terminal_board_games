@@ -3,9 +3,10 @@ Play Minesweeper in your terminal!
 Arrow keys move the cursor, 'space' to reveal, 'f' to set a flag, and 'esc' to exit
 """
 
-import curses
 from itertools import product
 import sys
+
+import curses
 import numpy as np
 from scipy.ndimage import convolve
 
