@@ -6,4 +6,4 @@ Minesweeper:
 
 ConnectFour:
 
-![connect4 preview](connect4_preview.png)
+![connectfour preview](connectfour_preview.png)
