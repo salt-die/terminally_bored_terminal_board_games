@@ -1,2 +1,2 @@
-from connectfour import ConnectFour
-from minesweeper import MineSweeper
+from .connectfour import ConnectFour
+from .minesweeper import MineSweeper
